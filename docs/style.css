@@ -1,4 +1,4 @@
-        body {
+         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f4f7fa;
             margin: 0;
@@ -131,6 +131,7 @@
             font-weight: bold;
             border-radius: 8px;
             margin-bottom: 20px;
+            display: none; /* Inicialmente oculto */
         }
 
         .alert.error {
@@ -141,6 +142,11 @@
         .alert.success {
             background-color: #27ae60;
             color: white;
+        }
+
+        .low-stock {
+            background-color: #f39c12; /* Cor de fundo para estoque baixo */
+            color: #fff; /* Cor do texto */
         }
 
         .tab-content {
