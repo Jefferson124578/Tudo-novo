@@ -1,1 +1,75 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+    <div class="container">
+        <div class="menu">
+            <button id="estoqueTab" class="active" onclick="showTab('estoque')">Estoque</button>
+            <button id="historicoTab" onclick="showTab('historico')">Histórico</button>
+        </div>
+
+        <div class="alert" id="alertMessage" style="display: none;"></div>
+
+        <div id="estoque" class="tab-content active">
+            <h2>Controle de Estoque</h2>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <input type="text" id="productCode" placeholder="Código do Produto">
+                <input type="text" id="itemName" placeholder="Nome do Item">
+                <input type="number" id="itemQuantity" placeholder="Quantidade">
+                <select id="responsiblePerson">
+                    <option value="Jefferson Jesus">Jefferson Jesus</option>
+                    <option value="Marcos Santana">Marcos Santana</option>
+                </select>
+                <button class="btn-add" onclick="addItem()">Adicionar</button>
+            </div>
+
+            <h3>Estoque Atual</h3>
+            <input type="text" id="filterProduct" placeholder="Filtrar por nome" oninput="filterStock()" style="max-width: 300px; margin-bottom: 20px; display: block; margin: 0 auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody"></tbody>
+            </table>
+            <button onclick="exportCSV()">Exportar para CSV</button>
+        </div>
+
+        <div id="historico" class="tab-content">
+            <h3>Histórico de Movimentações</h3>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                <select id="filterType" onchange="updateFilterPlaceholder()">
+                    <option value="nome">Filtrar por Nome</option>
+                    <option value="responsavel">Filtrar por Responsável</option>
+                    <option value="data">Filtrar por Data</option>
+                </select>
+                <input type="text" id="filterValue" placeholder="Digite o valor" oninput="filterHistory()" style="max-width: 300px;">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Item</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Responsável</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+<script src="script.js"></script>
+</body>
+</html>
