@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Estoque</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        h2, h3 {
+            color: #2c3e50;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .menu {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            gap: 20px;
+        }
+
+        .menu button {
+            background-color: #3498db;
+            color: #fff;
+            padding: 12px 25px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .menu button:hover {
+            background-color: #2980b9;
+        }
+
+        .menu button.active {
+            background-color: #2980b9;
+        }
+
+        input[type="text"], input[type="number"], select, input[type="date"] {
+            width: 100%;
+            max-width: 280px;
+            padding: 12px;
+            margin-bottom: 12px;
+            margin-right: 10px;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, input[type="date"]:focus {
+            border-color: #3498db;
+        }
+
+        button {
+            padding: 12px 24px;
+            margin: 5px 0;
+            font-size: 16px;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-add {
+            background-color: #27ae60;
+        }
+
+        .btn-entry {
+            background-color: #3498db;
+        }
+
+        .btn-exit {
+            background-color: #e74c3c;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        th {
+            background-color: #2980b9;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        td {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .alert {
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert.error {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .alert.success {
+            background-color: #27ae60;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="menu">
+            <button id="estoqueTab" class="active" onclick="showTab('estoque')">Estoque</button>
+            <button id="historicoTab" onclick="showTab('historico')">Histórico</button>
+        </div>
+
+        <div class="alert" id="alertMessage" style="display: none;"></div>
+
+        <div id="estoque" class="tab-content active">
+            <h2>Controle de Estoque</h2>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <input type="text" id="productCode" placeholder="Código do Produto">
+                <input type="text" id="itemName" placeholder="Nome do Item">
+                <input type="number" id="itemQuantity" placeholder="Quantidade">
+                <select id="responsiblePerson">
+                    <option value="Jefferson Jesus">Jefferson Jesus</option>
+                    <option value="Marcos Santana">Marcos Santana</option>
+                </select>
+                <button class="btn-add" onclick="addItem()">Adicionar</button>
+            </div>
+
+            <h3>Estoque Atual</h3>
+            <input type="text" id="filterProduct" placeholder="Filtrar por nome" oninput="filterStock()" style="max-width: 300px; margin-bottom: 20px; display: block; margin: 0 auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nome</th>
+                        <th>Quantidade</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryBody"></tbody>
+            </table>
+            <button onclick="exportCSV()">Exportar para CSV</button>
+        </div>
+
+        <div id="historico" class="tab-content">
+            <h3>Histórico de Movimentações</h3>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+                <select id="filterType" onchange="updateFilterPlaceholder()">
+                    <option value="nome">Filtrar por Nome</option>
+                    <option value="responsavel">Filtrar por Responsável</option>
+                    <option value="data">Filtrar por Data</option>
+                </select>
+                <input type="text" id="filterValue" placeholder="Digite o valor" oninput="filterHistory()" style="max-width: 300px;">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Item</th>
+                        <th>Tipo</th>
+                        <th>Quantidade</th>
+                        <th>Responsável</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody id="historyBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let inventory = JSON.parse(localStorage.getItem("inventory")) || {};
+        let history = JSON.parse(localStorage.getItem("history")) || [];
+        let alertMessage = document.getElementById("alertMessage");
+
+        function addItem() {
+            const code = document.getElementById("productCode").value;
+            const name = document.getElementById("itemName").value;
+            const quantity = parseInt(document.getElementById("itemQuantity").value);
+            const responsible = document.getElementById("responsiblePerson").value;
+
+            if (!code || !name || !quantity || !responsible) {
+                showAlert("Todos os campos são obrigatórios.", true);
+                return;
+            }
+
+            if (quantity <= 0) {
+                showAlert("A quantidade deve ser maior que zero.", true);
+                return;
+            }
+
+            if (inventory[code]) {
+                inventory[code].quantity += quantity;
+            } else {
+                inventory[code] = { name, quantity };
+            }
+
+            addHistory(code, name, "Entrada", quantity, responsible);
+            saveData();
+            updateTable();
+            clearInputFields();
+            showAlert("Produto cadastrado com sucesso!", false);
+        }
+
+        function addHistory(code, name, type, quantity, responsible) {
+            const date = new Date().toISOString(); // Armazena a data em formato ISO
+            history.push({ code, name, type, quantity, responsible, date });
+            saveData();
+            updateHistoryTable();
+        }
+
+        function saveData() {
+            localStorage.setItem("inventory", JSON.stringify(inventory));
+            localStorage.setItem("history", JSON.stringify(history));
+        }
+
+        function updateTable() {
+            const inventoryBody = document.getElementById("inventoryBody");
+            inventoryBody.innerHTML = "";
+            for (const code in inventory) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${code}</td>
+                    <td>${inventory[code].name}</td>
+                    <td>${inventory[code].quantity}</td>
+                    <td>
+                        <button class="btn-entry" onclick="updateQuantity('${code}', 'Entrada')">Entrada</button>
+                        <button class="btn-exit" onclick="updateQuantity('${code}', 'Saída')">Saída</button>
+                        <button class="btn-delete" onclick="deleteItem('${code}')">Excluir</button>
+                    </td>
+                `;
+                inventoryBody.appendChild(row);
+
+                // Notificação de estoque baixo
+                if (inventory[code].quantity < 5) {
+                    row.style.backgroundColor = "#f39c12"; // Alerta visual
+                    showAlert(`Estoque baixo para o item: ${inventory[code].name}`, true);
+                }
+            }
+        }
+
+        function deleteItem(code) {
+            const itemName = inventory[code].name;
+            delete inventory[code];
+            addHistory(code, itemName, "Exclusão", 0, "Usuário");
+            saveData();
+            updateTable();
+            showAlert(`${itemName} foi excluído do estoque!`, false);
+        }
+
+        function updateQuantity(code, type) {
+            const quantity = parseInt(prompt(`Digite a quantidade de ${type.toLowerCase()} para o item ${inventory[code].name}:`));
+
+            if (isNaN(quantity) || quantity <= 0) {
+                showAlert("A quantidade deve ser maior que zero.", true);
+                return;
+            }
+
+            if (type === "Saída" && inventory[code].quantity < quantity) {
+                showAlert("Quantidade insuficiente em estoque.", true);
+                return;
+            }
+
+            inventory[code].quantity += (type === "Entrada" ? quantity : -quantity);
+            const responsible = "Usuário"; // Pode ser modificado com base no sistema de login
+            addHistory(code, inventory[code].name, type, quantity, responsible);
+            saveData();
+            updateTable();
+        }
+
+        function updateHistoryTable() {
+            const historyBody = document.getElementById("historyBody");
+            historyBody.innerHTML = "";
+            for (const item of history) {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${item.code}</td>
+                    <td>${item.name}</td>
+                    <td>${item.type}</td>
+                    <td>${item.quantity}</td>
+                    <td>${item.responsible}</td>
+                    <td>${new Date(item.date).toLocaleString()}</td> <!-- Formato de data legível -->
+                `;
+                historyBody.appendChild(row);
+            }
+        }
+
+        function filterHistory() {
+            const filterType = document.getElementById("filterType").value;
+            const filterValue = document.getElementById("filterValue").value.toLowerCase();
+            const historyBody = document.getElementById("historyBody");
+            historyBody.innerHTML = "";
+
+            history.forEach(item => {
+                let matches = false;
+
+                if (filterType === "nome") {
+                    matches = item.name.toLowerCase().includes(filterValue);
+                } else if (filterType === "responsavel") {
+                    matches = item.responsible.toLowerCase().includes(filterValue);
+                } else if (filterType === "data") {
+                    const itemDate = new Date(item.date).toLocaleDateString();
+                    matches = itemDate.includes(filterValue);
+                }
+
+                if (matches) {
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${item.code}</td>
+                        <td>${item.name}</td>
+                        <td>${item.type}</td>
+                        <td>${item.quantity}</td>
+                        <td>${item.responsible}</td>
+                        <td>${new Date(item.date).toLocaleString()}</td>
+                    `;
+                    historyBody.appendChild(row);
+                }
+            });
+
+            // Se nenhum resultado for encontrado
+            if (historyBody.innerHTML === "") {
+                const row = document.createElement("tr");
+                row.innerHTML = `<td colspan="6" style="text-align:center;">Nenhum registro encontrado.</td>`;
+                historyBody.appendChild(row);
+            }
+        }
+
+        function showAlert(message, isError) {
+            alertMessage.textContent = message;
+            alertMessage.style.display = "block";
+            alertMessage.className = isError ? "alert error" : "alert success";
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+            document.getElementById(tab).classList.add("active");
+            document.querySelectorAll(".menu button").forEach(button => button.classList.remove("active"));
+            document.getElementById(tab + "Tab").classList.add("active");
+        }
+
+        function updateFilterPlaceholder() {
+            const filterType = document.getElementById("filterType").value;
+            const filterValue = document.getElementById("filterValue");
+            if (filterType === "data") {
+                filterValue.type = "date";
+                filterValue.placeholder = "Selecione uma data";
+            } else {
+                filterValue.type = "text";
+                filterValue.placeholder = "Digite o valor";
+            }
+        }
+
+        updateTable();
+        updateHistoryTable();
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
