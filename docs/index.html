@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Controle de Estoque</title>
- <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -12,6 +12,8 @@
         <div class="menu">
             <button id="estoqueTab" class="active" onclick="showTab('estoque')">Estoque</button>
             <button id="historicoTab" onclick="showTab('historico')">Histórico</button>
+            <button onclick="exportCSV()">Exportar para CSV</button>
+
         </div>
 
         <div class="alert" id="alertMessage"></div>
@@ -72,4 +74,7 @@
     </div>
 <script src="script.js"></script>
 </body>
+</html>
+
+
 </html>
